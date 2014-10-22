@@ -82,8 +82,13 @@ has _chessboard => (
         my $board = Chess::Rep->new;
         my $record = $self->_record_file;
         if (-e $record) {
-            for my $move (split ' ', $record->slurp) {
-                $board->go_move($move);
+            my @lines = $record->slurp;
+            $self->white_player(shift @lines);
+            $self->black_player(shift @lines);
+            for my $turn (@lines) {
+                my ($white, $black) = split ' ', $turn;
+                $board->go_move($white) if $white;
+                $board->go_move($black) if $black;
             }
         }
         $board
@@ -96,6 +101,12 @@ has _record_file => (
     isa => 'Path::Class::File',
     lazy => 1,
     default => sub { file('current.game') },
+);
+
+has _temp_moves => (
+    is      => 'ro',
+    isa     => 'ArrayRef[Str]',
+    default => sub { [] },
 );
 
 sub run ($self) {
@@ -143,10 +154,16 @@ sub handle_move ($self, $player, $move) {
 
         return try {
             my $res = $self->_chessboard->go_move($move);
-            $self->_record_file->spew(
-                iomode => 'a',
-                $res->{san} . ($self->_chessboard->to_move ? " " : "\n")
-            );
+            my $parsed_move = $res->{san};
+            if ($self->needs_new_player) {
+                push $self->_temp_moves->@*, $parsed_move;
+            }
+            else {
+                $self->_record_file->spew(
+                    iomode => 'a',
+                    $parsed_move . ($self->_chessboard->to_move ? " " : "\n")
+                );
+            }
             $self->draw_state;
         }
         catch {
@@ -167,6 +184,11 @@ sub set_new_player ($self, $player) {
     elsif (!$self->has_black_player) {
         warn "$player is now playing Black";
         $self->black_player($player);
+        $self->_record_file->spew(
+            $self->white_player . "\n"
+            $self->black_player . "\n"
+            $self->_temp_moves->[0] . " " . $self->_temp_moves->[1] . "\n"
+        );
     }
     else {
         die "Both players are already full";

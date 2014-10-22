@@ -207,10 +207,12 @@ sub draw_state ($self) {
     if ($status->{mate}) {
         $board .= "CHECKMATE\n";
         $self->reset_board;
+        return $board;
     }
     elsif ($status->{stalemate}) {
         $board .= "STALEMATE\n";
         $self->reset_board;
+        return $board;
     }
     elsif ($status->{check}) {
         $board .= "CHECK\n";

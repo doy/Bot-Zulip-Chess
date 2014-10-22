@@ -145,7 +145,7 @@ sub handle_move ($self, $player, $move) {
             my $res = $self->_chessboard->go_move($move);
             $self->_record_file->spew(
                 iomode => 'a',
-                $res->{san} . $self->_chessboard->to_move ? " " : "\n"
+                $res->{san} . ($self->_chessboard->to_move ? " " : "\n")
             );
             $self->draw_state;
         }

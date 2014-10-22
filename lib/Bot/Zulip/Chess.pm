@@ -148,9 +148,11 @@ sub needs_new_player ($self) {
 
 sub set_new_player ($self, $player) {
     if (!$self->has_white_player) {
+        warn "$player is now playing White";
         $self->white_player($player)
     }
     elsif (!$self->has_black_player) {
+        warn "$player is now playing Black";
         $self->black_player($player);
     }
     else {
@@ -160,6 +162,7 @@ sub set_new_player ($self, $player) {
 
 sub increment_turn ($self) {
     $self->turn($self->turn eq 'white' ? 'black' : 'white');
+    warn "It is now " . $self->turn . "'s turn";
 }
 
 sub draw_state ($self) {

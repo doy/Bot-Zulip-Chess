@@ -174,9 +174,7 @@ sub draw_state ($self) {
 sub players_turn ($self, $player) {
     my $method = $self->_chessboard->to_move ? 'white_player' : 'black_player';
     my $expected_player = $self->$method;
-    return if grep { $_ eq $player } grep { defined } (
-        $self->white_player, $self->black_player
-    );
+    return if !$self->has_black_player && $self->white_player eq $player;
     return 1 if !defined($expected_player);
     return 1 if $expected_player eq $player;
     return;

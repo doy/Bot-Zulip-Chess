@@ -227,7 +227,7 @@ sub format_board ($self) {
     my @board = split "\n", $board;
     my $n = 1;
     for my $i (0..$#board) {
-        my $prefix = $i % 2 == 1 && $i < 16 ? $n++ : " ";
+        my $prefix = $i % 2 == 1 && $i < 16 ? (9 - $n++) : " ";
         $board[$i] = $prefix . $board[$i];
     }
 

@@ -110,10 +110,11 @@ has _chessboard => (
 );
 
 has _record_file => (
-    is  => 'ro',
-    isa => 'Path::Class::File',
-    lazy => 1,
+    is      => 'ro',
+    isa     => 'Path::Class::File',
+    lazy    => 1,
     default => sub { file('current.game') },
+    clearer => '_clear_record_file',
 );
 
 has _temp_move => (
@@ -269,6 +270,7 @@ sub players_turn ($self, $player) {
 
 sub reset_board ($self) {
     $self->_record_file->move_to(time() . ".game");
+    $self->_clear_record_file; # move_to updates the filename in-place
     $self->clear_white_player;
     $self->clear_black_player;
     $self->_clear_chessboard;

@@ -92,7 +92,7 @@ sub step ($self) {
     for my $event ($res->{events}->@*) {
         next unless $event->{type} eq 'message';
         my $message = $event->{message};
-        # next if $message->{type} eq 'private';
+        next if $message->{type} eq 'private';
         my $bot_name = $self->bot_name;
         my $content = $message->{content};
         next unless $content =~ s/^\@\*\*$bot_name\*\*//;
@@ -111,14 +111,14 @@ sub step ($self) {
 }
 
 sub handle_move ($self, $player, $move) {
-    if ($self->needs_new_player) {
-        $self->set_new_player($player);
-    }
-
     if (!$self->players_turn($player)) {
         return "It's not your turn!";
     }
     else {
+        if ($self->needs_new_player) {
+            $self->set_new_player($player);
+        }
+
         return try {
             $self->_chessboard->go_move($move);
             my $state = $self->draw_state;
@@ -173,6 +173,9 @@ sub draw_state ($self) {
 sub players_turn ($self, $player) {
     my $method = $self->turn . '_player';
     my $expected_player = $self->$method;
+    return if grep { $_ eq $player } grep { defined } (
+        $self->white_player, $self->black_player
+    );
     return 1 if !defined($expected_player);
     return 1 if $expected_player eq $player;
     return;

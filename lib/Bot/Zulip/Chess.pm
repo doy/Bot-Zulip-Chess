@@ -186,8 +186,8 @@ sub set_new_player ($self, $player) {
         $self->black_player($player);
         $self->_record_file->spew(
             $self->white_player . "\n"
-            $self->black_player . "\n"
-            $self->_temp_moves->[0] . " " . $self->_temp_moves->[1] . "\n"
+          . $self->black_player . "\n"
+          . $self->_temp_moves->[0] . " " . $self->_temp_moves->[1] . "\n"
         );
     }
     else {

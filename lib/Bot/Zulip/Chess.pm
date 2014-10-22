@@ -49,12 +49,6 @@ has black_player => (
     clearer   => 'clear_black_player',
 );
 
-has turn => (
-    is      => 'rw',
-    isa     => 'Str',
-    default => 'white',
-);
-
 has _zulip => (
     is      => 'ro',
     isa     => 'WebService::Zulip',
@@ -132,9 +126,7 @@ sub handle_move ($self, $player, $move) {
 
         return try {
             $self->_chessboard->go_move($move);
-            my $state = $self->draw_state;
-            $self->increment_turn;
-            $state
+            $self->draw_state;
         }
         catch {
             s/ at .* line .*//r;
@@ -160,11 +152,6 @@ sub set_new_player ($self, $player) {
     }
 }
 
-sub increment_turn ($self) {
-    $self->turn($self->turn eq 'white' ? 'black' : 'white');
-    warn "It is now " . $self->turn . "'s turn";
-}
-
 sub draw_state ($self) {
     my $board = $self->format_board =~ s/^/    /gmr;
     my $status = $self->_chessboard->status;
@@ -185,7 +172,7 @@ sub draw_state ($self) {
 }
 
 sub players_turn ($self, $player) {
-    my $method = $self->turn . '_player';
+    my $method = $self->_chessboard->to_move ? 'white_player' : 'black_player';
     my $expected_player = $self->$method;
     return if grep { $_ eq $player } grep { defined } (
         $self->white_player, $self->black_player
@@ -196,7 +183,6 @@ sub players_turn ($self, $player) {
 }
 
 sub reset_board ($self) {
-    $self->turn('white');
     $self->clear_white_player;
     $self->clear_black_player;
     $self->_clear_chessboard;

@@ -168,17 +168,27 @@ sub draw_state ($self) {
         $board .= "\nCHECK\n";
     }
 
+    $board .= "\@**" . $self->current_player . "** ("
+            . ($self->_chessboard->to_move ? 'White' : 'Black')
+            . ") to move";
+
     return $board;
 }
 
-sub players_turn ($self, $player) {
+sub current_player ($self) {
     my $method = $self->_chessboard->to_move ? 'white_player' : 'black_player';
-    my $expected_player = $self->$method;
+    return $self->$method;
+}
+
+sub players_turn ($self, $player) {
     return if !$self->has_black_player
            && $self->has_white_player
            && $self->white_player eq $player;
+
+    my $expected_player = $self->current_player;
     return 1 if !defined($expected_player);
     return 1 if $expected_player eq $player;
+
     return;
 }
 

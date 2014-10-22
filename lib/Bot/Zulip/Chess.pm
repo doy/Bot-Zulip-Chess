@@ -103,10 +103,9 @@ has _record_file => (
     default => sub { file('current.game') },
 );
 
-has _temp_moves => (
-    is      => 'ro',
-    isa     => 'ArrayRef[Str]',
-    default => sub { [] },
+has _temp_move => (
+    is  => 'rw',
+    isa => 'Str',
 );
 
 sub run ($self) {
@@ -156,7 +155,7 @@ sub handle_move ($self, $player, $move) {
             my $res = $self->_chessboard->go_move($move);
             my $parsed_move = $res->{san};
             if ($self->needs_new_player) {
-                push $self->_temp_moves->@*, $parsed_move;
+                $self->_temp_move($parsed_move);
             }
             else {
                 $self->_record_file->spew(
@@ -187,7 +186,7 @@ sub set_new_player ($self, $player) {
         $self->_record_file->spew(
             $self->white_player . "\n"
           . $self->black_player . "\n"
-          . $self->_temp_moves->[0] . " " . $self->_temp_moves->[1] . "\n"
+          . $self->_temp_move . " "
         );
     }
     else {

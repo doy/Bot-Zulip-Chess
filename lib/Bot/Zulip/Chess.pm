@@ -7,6 +7,7 @@ no warnings 'experimental::signatures';
 no warnings 'experimental::postderef';
 
 use Chess::Rep;
+use JSON::PP;
 use Try::Tiny;
 use WebService::Zulip;
 
@@ -25,6 +26,12 @@ has api_user => (
 has bot_name => (
     is       => 'ro',
     isa      => 'Str',
+    required => 1,
+);
+
+has streams => (
+    is       => 'ro',
+    isa      => 'ArrayRef[Str]',
     required => 1,
 );
 
@@ -53,10 +60,13 @@ has _zulip => (
     isa     => 'WebService::Zulip',
     lazy    => 1,
     default => sub ($self) {
-        WebService::Zulip->new(
+        my $zulip = WebService::Zulip->new(
             api_key  => $self->api_key,
             api_user => $self->api_user,
-        )
+        );
+        # XXX move this into WebService::Zulip
+        $zulip->{_ua}->post('https://api.zulip.com/v1/users/me/subscriptions', {subscriptions => encode_json([ map { +{ name => $_ } } $self->streams->@* ])});
+        $zulip
     },
 );
 
@@ -100,10 +110,11 @@ sub step ($self) {
         my $response = $self->handle_move(
             $message->{sender_full_name}, $content
         );
+        my $to = $message->{type} eq 'private' ? $message->{sender_email} : $message->{display_recipient};
         $self->_zulip->send_message(
             content => $response,
             subject => $message->{subject},
-            to      => $message->{sender_email},
+            to      => $to,
             type    => $message->{type},
         );
     }

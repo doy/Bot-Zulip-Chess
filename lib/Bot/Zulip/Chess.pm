@@ -156,6 +156,10 @@ sub step ($self) {
 }
 
 sub handle_move ($self, $player, $move) {
+    if ($move eq 'state') {
+        return $self->draw_state;
+    }
+
     if (!$self->players_turn($player)) {
         return "It's not your turn!";
     }
@@ -165,10 +169,7 @@ sub handle_move ($self, $player, $move) {
         }
 
         return try {
-            if ($move eq 'state') {
-                $self->draw_state;
-            }
-            elsif ($move eq 'resign') {
+            if ($move eq 'resign') {
                 my $msg = '@**' . $self->current_player . "** resigned";
                 $self->reset_board;
             }

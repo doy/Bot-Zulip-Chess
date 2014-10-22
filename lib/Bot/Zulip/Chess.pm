@@ -161,7 +161,7 @@ sub handle_move ($self, $player, $move) {
             else {
                 $self->_record_file->spew(
                     iomode => 'a',
-                    $parsed_move . ($self->_chessboard->to_move ? " " : "\n")
+                    $parsed_move . ($self->_chessboard->to_move ? "\n" : " ")
                 );
             }
             $self->draw_state;

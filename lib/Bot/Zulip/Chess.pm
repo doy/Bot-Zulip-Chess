@@ -178,15 +178,15 @@ sub draw_state ($self) {
     my $status = $self->_chessboard->status;
 
     if ($status->{mate}) {
-        $board .= "\nCHECKMATE\n";
+        $board .= "CHECKMATE\n";
         $self->reset_board;
     }
     elsif ($status->{stalemate}) {
-        $board .= "\nSTALEMATE\n";
+        $board .= "STALEMATE\n";
         $self->reset_board;
     }
     elsif ($status->{check}) {
-        $board .= "\nCHECK\n";
+        $board .= "CHECK\n";
     }
 
     my $to_move = $self->current_player;
@@ -198,7 +198,7 @@ sub draw_state ($self) {
     }
     $board .= $to_move . " ("
             . ($self->_chessboard->to_move ? 'White' : 'Black')
-            . ") to move";
+            . ") to move\n";
 
     return $board;
 }
@@ -274,7 +274,7 @@ sub format_board ($self) {
         $board[$i] = $prefix . $board[$i];
     }
 
-    join("\n", @board)
+    join("\n", @board) . "\n"
 }
 
 __PACKAGE__->meta->make_immutable;

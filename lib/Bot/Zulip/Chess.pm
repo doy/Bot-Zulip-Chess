@@ -83,9 +83,12 @@ has _chessboard => (
         my $record = $self->_record_file;
         if (-e $record) {
             try {
+                warn "Loading a previous game...";
                 chomp(my @lines = $record->slurp);
                 $self->white_player(shift @lines);
                 $self->black_player(shift @lines);
+                warn "Between " . $self->white_player
+                   . " and " . $self->black_player;
                 for my $turn (@lines) {
                     my ($white, $black) = split ' ', $turn;
                     $board->go_move($white) if $white;

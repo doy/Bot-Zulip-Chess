@@ -242,10 +242,6 @@ sub players_turn ($self, $player) {
 }
 
 sub reset_board ($self) {
-    $self->_record_file->spew(
-        iomode => "a",
-        "\n" . $self->white_player . " / " . $self->black_player . "\n"
-    );
     $self->_record_file->move_to(time() . ".game");
     $self->clear_white_player;
     $self->clear_black_player;

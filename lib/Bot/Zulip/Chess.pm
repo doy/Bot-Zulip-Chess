@@ -82,7 +82,7 @@ has _chessboard => (
         my $board = Chess::Rep->new;
         my $record = $self->_record_file;
         if (-e $record) {
-            my @lines = $record->slurp;
+            chomp(my @lines = $record->slurp);
             $self->white_player(shift @lines);
             $self->black_player(shift @lines);
             for my $turn (@lines) {

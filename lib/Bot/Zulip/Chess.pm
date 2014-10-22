@@ -82,13 +82,19 @@ has _chessboard => (
         my $board = Chess::Rep->new;
         my $record = $self->_record_file;
         if (-e $record) {
-            chomp(my @lines = $record->slurp);
-            $self->white_player(shift @lines);
-            $self->black_player(shift @lines);
-            for my $turn (@lines) {
-                my ($white, $black) = split ' ', $turn;
-                $board->go_move($white) if $white;
-                $board->go_move($black) if $black;
+            try {
+                chomp(my @lines = $record->slurp);
+                $self->white_player(shift @lines);
+                $self->black_player(shift @lines);
+                for my $turn (@lines) {
+                    my ($white, $black) = split ' ', $turn;
+                    $board->go_move($white) if $white;
+                    $board->go_move($black) if $black;
+                }
+            }
+            catch {
+                warn $_;
+                $board = Chess::Rep->new;
             }
         }
         $board

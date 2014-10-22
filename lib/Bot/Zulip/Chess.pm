@@ -8,6 +8,7 @@ no warnings 'experimental::postderef';
 
 use Chess::Rep;
 use JSON::PP;
+use Path::Class;
 use Try::Tiny;
 use WebService::Zulip;
 
@@ -77,8 +78,24 @@ has _chessboard => (
     is      => 'ro',
     isa     => 'Chess::Rep',
     lazy    => 1,
-    default => sub { Chess::Rep->new },
+    default => sub ($self) {
+        my $board = Chess::Rep->new;
+        my $record = $self->_record_file;
+        if (-e $record) {
+            for my $move (split ' ', $record->slurp) {
+                $board->go_move($move);
+            }
+        }
+        $board
+    },
     clearer => '_clear_chessboard',
+);
+
+has _record_file => (
+    is  => 'ro',
+    isa => 'Path::Class::File',
+    lazy => 1,
+    default => sub { file('current.game') },
 );
 
 sub run ($self) {
@@ -125,7 +142,11 @@ sub handle_move ($self, $player, $move) {
         }
 
         return try {
-            $self->_chessboard->go_move($move);
+            my $res = $self->_chessboard->go_move($move);
+            $self->_record_file->spew(
+                iomode => 'a',
+                $res->{san} . $self->_chessboard->to_move ? " " : "\n"
+            );
             $self->draw_state;
         }
         catch {
@@ -193,6 +214,11 @@ sub players_turn ($self, $player) {
 }
 
 sub reset_board ($self) {
+    $self->_record_file->spew(
+        iomode => "a",
+        "\n" . $self->white_player . " / " . $self->black_player . "\n"
+    );
+    $self->_record_file->move_to(time() . ".game");
     $self->clear_white_player;
     $self->clear_black_player;
     $self->_clear_chessboard;

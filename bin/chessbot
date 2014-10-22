@@ -1,0 +1,9 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+use Bot::Zulip::Chess;
+use JSON::PP;
+
+my $config = decode_json(scalar do { local $/; <> });
+Bot::Zulip::Chess->new($config)->run;

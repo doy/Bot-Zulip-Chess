@@ -165,18 +165,27 @@ sub handle_move ($self, $player, $move) {
         }
 
         return try {
-            my $res = $self->_chessboard->go_move($move);
-            my $parsed_move = $res->{san};
-            if ($self->needs_new_player) {
-                $self->_temp_move($parsed_move);
+            if ($move eq 'state') {
+                $self->draw_state;
+            }
+            elsif ($move eq 'resign') {
+                my $msg = '@**' . $self->current_player . "** resigned";
+                $self->reset_board;
             }
             else {
-                $self->_record_file->spew(
-                    iomode => 'a',
-                    $parsed_move . ($self->_chessboard->to_move ? "\n" : " ")
-                );
+                my $res = $self->_chessboard->go_move($move);
+                my $parsed_move = $res->{san};
+                if ($self->needs_new_player) {
+                    $self->_temp_move($parsed_move);
+                }
+                else {
+                    $self->_record_file->spew(
+                        iomode => 'a',
+                        $parsed_move . ($self->_chessboard->to_move ? "\n" : " ")
+                    );
+                }
+                $self->draw_state;
             }
-            $self->draw_state;
         }
         catch {
             s/ at .* line .*//r;

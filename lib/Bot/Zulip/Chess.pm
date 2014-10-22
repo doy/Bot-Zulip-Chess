@@ -172,6 +172,7 @@ sub handle_move ($self, $player, $move) {
             if ($move eq 'resign') {
                 my $msg = '@**' . $self->current_player . "** resigned";
                 $self->reset_board;
+                return $msg;
             }
             else {
                 my $res = $self->_chessboard->go_move($move);

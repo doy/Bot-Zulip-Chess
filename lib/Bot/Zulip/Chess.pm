@@ -189,7 +189,14 @@ sub draw_state ($self) {
         $board .= "\nCHECK\n";
     }
 
-    $board .= "\@**" . $self->current_player . "** ("
+    my $to_move = $self->current_player;
+    if ($to_move) {
+        $to_move = '@**' . $to_move . '**';
+    }
+    else {
+        $to_move = "A new opponent";
+    }
+    $board .= $to_move . " ("
             . ($self->_chessboard->to_move ? 'White' : 'Black')
             . ") to move";
 

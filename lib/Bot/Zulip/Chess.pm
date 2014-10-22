@@ -94,6 +94,10 @@ has _chessboard => (
                     $board->go_move($white) if $white;
                     $board->go_move($black) if $black;
                 }
+                my $status = $board->status;
+                if ($status->{mate} || $status->{stalemate}) {
+                    die "Game is over";
+                }
             }
             catch {
                 warn $_;
